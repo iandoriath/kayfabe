@@ -1,151 +1,107 @@
 import streamlit as st
+import pyreadr
 import pandas as pd
-import math
-from pathlib import Path
+import plotly.express as px
+import datetime
 
-# Set the title and favicon that appear in the Browser's tab bar.
-st.set_page_config(
-    page_title='GDP dashboard',
-    page_icon=':earth_americas:', # This is an emoji shortcode. Could be a URL too.
-)
+st.title("Bayesian Kayfabe: Wrestler Skill Over Time")
 
-# -----------------------------------------------------------------------------
-# Declare some useful functions.
+# 1) Load data from RDS
+df_lc_rds = pyreadr.read_r("df_lc.Rds")
+df_lc = df_lc_rds[None]  # main DataFrame
 
-@st.cache_data
-def get_gdp_data():
-    """Grab GDP data from a CSV file.
+wrestler_names_rds = pyreadr.read_r("wrestler_names.Rds")
+wrestler_names = wrestler_names_rds[None]
 
-    This uses caching to avoid having to read the file every time. If we were
-    reading from an HTTP endpoint instead of a file, it's a good idea to set
-    a maximum age to the cache with the TTL argument: @st.cache_data(ttl='1d')
-    """
+# 2) Merge on wrestler_id so each row has names
+df_merged = df_lc.merge(wrestler_names, on="wrestler_id", how="left")
 
-    # Instead of a CSV on disk, you could read from an HTTP endpoint here too.
-    DATA_FILENAME = Path(__file__).parent/'data/gdp_data.csv'
-    raw_gdp_df = pd.read_csv(DATA_FILENAME)
+# Confirm that 'date' is recognized as datetime:
+df_merged["date"] = pd.to_datetime(df_merged["date"], errors="coerce")
+df_merged = df_merged.dropna(subset=["date"])  # remove invalid
 
-    MIN_YEAR = 1960
-    MAX_YEAR = 2022
+# 3) Determine the data’s earliest/latest date
+data_min = df_merged["date"].min()
+data_max = df_merged["date"].max()
 
-    # The data above has columns like:
-    # - Country Name
-    # - Country Code
-    # - [Stuff I don't care about]
-    # - GDP for 1960
-    # - GDP for 1961
-    # - GDP for 1962
-    # - ...
-    # - GDP for 2022
-    #
-    # ...but I want this instead:
-    # - Country Name
-    # - Country Code
-    # - Year
-    # - GDP
-    #
-    # So let's pivot all those year-columns into two: Year and GDP
-    gdp_df = raw_gdp_df.melt(
-        ['Country Code'],
-        [str(x) for x in range(MIN_YEAR, MAX_YEAR + 1)],
-        'Year',
-        'GDP',
+# 4) Define the default start/end
+default_start = datetime.date(1985, 1, 1)
+default_end   = datetime.date.today()
+
+# Clamp these to the actual data
+default_start = max(default_start, data_min.date())
+default_end   = min(default_end, data_max.date())
+
+# 5) Two separate date pickers
+col1, col2 = st.columns(2)
+
+with col1:
+    start_date = st.date_input(
+        "Start date",
+        value=default_start,
+        min_value=data_min.date(),
+        max_value=data_max.date()
     )
 
-    # Convert years from string to integers
-    gdp_df['Year'] = pd.to_numeric(gdp_df['Year'])
+with col2:
+    end_date = st.date_input(
+        "End date",
+        value=default_end,
+        min_value=data_min.date(),
+        max_value=data_max.date()
+    )
 
-    return gdp_df
+# Convert user-chosen dates to Timestamps
+start_ts = pd.to_datetime(start_date)
+end_ts   = pd.to_datetime(end_date)
 
-gdp_df = get_gdp_data()
+# Optional: if you'd like to ensure start <= end:
+if start_ts > end_ts:
+    st.warning("Start date is after end date. No data to show.")
+    st.stop()
 
-# -----------------------------------------------------------------------------
-# Draw the actual page
+# Filter
+df_merged = df_merged[(df_merged["date"] >= start_ts) & (df_merged["date"] <= end_ts)]
 
-# Set the title that appears at the top of the page.
-'''
-# :earth_americas: GDP dashboard
+# 6) Multiselect for wrestlers
+all_names = sorted(df_merged["wrestler_names"].dropna().unique())
+default_list = ["John Cena", "Hulk Hogan", "Rhea Ripley", "The Undertaker"]
+defaults_in_data = sorted(set(all_names).intersection(default_list))
 
-Browse GDP data from the [World Bank Open Data](https://data.worldbank.org/) website. As you'll
-notice, the data only goes to 2022 right now, and datapoints for certain years are often missing.
-But it's otherwise a great (and did I mention _free_?) source of data.
-'''
-
-# Add some spacing
-''
-''
-
-min_value = gdp_df['Year'].min()
-max_value = gdp_df['Year'].max()
-
-from_year, to_year = st.slider(
-    'Which years are you interested in?',
-    min_value=min_value,
-    max_value=max_value,
-    value=[min_value, max_value])
-
-countries = gdp_df['Country Code'].unique()
-
-if not len(countries):
-    st.warning("Select at least one country")
-
-selected_countries = st.multiselect(
-    'Which countries would you like to view?',
-    countries,
-    ['DEU', 'FRA', 'GBR', 'BRA', 'MEX', 'JPN'])
-
-''
-''
-''
-
-# Filter the data
-filtered_gdp_df = gdp_df[
-    (gdp_df['Country Code'].isin(selected_countries))
-    & (gdp_df['Year'] <= to_year)
-    & (from_year <= gdp_df['Year'])
-]
-
-st.header('GDP over time', divider='gray')
-
-''
-
-st.line_chart(
-    filtered_gdp_df,
-    x='Year',
-    y='GDP',
-    color='Country Code',
+chosen = st.multiselect(
+    "Choose wrestlers:",
+    options=all_names,
+    default=defaults_in_data
 )
 
-''
-''
-
-
-first_year = gdp_df[gdp_df['Year'] == from_year]
-last_year = gdp_df[gdp_df['Year'] == to_year]
-
-st.header(f'GDP in {to_year}', divider='gray')
-
-''
-
-cols = st.columns(4)
-
-for i, country in enumerate(selected_countries):
-    col = cols[i % len(cols)]
-
-    with col:
-        first_gdp = first_year[first_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-        last_gdp = last_year[last_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-
-        if math.isnan(first_gdp):
-            growth = 'n/a'
-            delta_color = 'off'
-        else:
-            growth = f'{last_gdp / first_gdp:,.2f}x'
-            delta_color = 'normal'
-
-        st.metric(
-            label=f'{country} GDP',
-            value=f'{last_gdp:,.0f}B',
-            delta=growth,
-            delta_color=delta_color
+# 7) Plot
+if chosen:
+    filtered = df_merged[df_merged["wrestler_names"].isin(chosen)]
+    if filtered.empty:
+        st.warning("No data for the chosen wrestlers and date range.")
+    else:
+        fig = px.line(
+            filtered,
+            x="date", 
+            y="mu",  # your skill column
+            color="wrestler_names",
+            title="Weekly Wrestler Skill Over Time",
+            labels={"date": "Date", "mu": "Estimated Skill (mu)"}
         )
+        fig.add_hline(y=0, line_dash="dash", line_color="black")
+        st.plotly_chart(fig, use_container_width=True)
+else:
+    st.write("Pick at least one wrestler from the list above.")
+
+# 8) Add article text below the app
+st.markdown("---")
+st.markdown("## Further Reading / Commentary")
+st.markdown("""
+A Bayesian Kayfabe Wrestler Skill Metric for a Statistical Understanding of WWE Booking Decisions
+
+Ian DeLorey MS
+
+Professional wrestling, as portrayed by World Wrestling Entertainment (WWE), occupies a unique space in sports and entertainment. While the athleticism of the performers is undeniable, the outcomes of matches are ultimately determined by creative decisions rather than pure athletic competition. In industry parlance, the scripted nature of professional wrestling is referred to as “kayfabe,” a term which historically signified the code of secrecy within the wrestling business. Wrestlers are presented to the audience as though they are truly competing, with wins and losses contributing to perceptions of who is “strong” or “skilled.” Yet, because these outcomes are orchestrated, the notion of “skill” in WWE diverges considerably from a purely competitive metric.
+Despite its scripted nature, fans, journalists, and analysts have long been interested in quantifying wrestlers’ performance levels or “pushes” as a means of evaluating how WWE’s creative team positions performers. This paper proposes a statistical model—herein called the Bayesian Kayfabe (BK) skill metric—that estimates a wrestler’s “storyline strength” over time, based on match outcomes that appear in the public record. Though these outcomes are fictional in a sporting sense, the company’s booking patterns reflect actual creative and business decisions that shape audience perception, merchandise sales, and other revenue streams. By capturing these decisions quantitatively, we can better analyze how, when, and why certain wrestlers gain or lose prominence in WWE storylines.
+
+""")
