@@ -154,11 +154,10 @@ def simulate_match_python(team1_list, team2_list, df_lc, wrestler_names):
     p_team1_win = 1.0 - nd.cdf(0)
     p_team2_win = 1.0 - p_team1_win
     
-    # Construct rows
+    import pandas as pd
     row_team1_odds = compute_betting_odds_python(p_team1_win)
     row_team2_odds = compute_betting_odds_python(p_team2_win)
     
-    import pandas as pd
     summary_data = [
         {
             "team":              "Team 1",
@@ -198,12 +197,15 @@ def simulate_match_python(team1_list, team2_list, df_lc, wrestler_names):
 ########################################
 # 3) Layout in Tabs
 ########################################
-tab1, tab2 = st.tabs(["Historic Wrestler Skill", "Match Simulator"])
+tab1, tab2, tab3 = st.tabs(["Historic Wrestler Skill", "Match Simulator", "Active BK Rankings"])
 
+##############################################################################
+# TAB 1: Historic Wrestler Skill
+##############################################################################
 with tab1:
     st.title("Bayesian Kayfabe: Wrestler Skill Over Time")
     
-    # 3A) Set up date inputs
+    # A) Date range filters
     default_start = datetime.date(1985, 1, 1)
     default_end   = datetime.date.today()
     # clamp to data range
@@ -232,17 +234,17 @@ with tab1:
         st.warning("Start date is after end date. No data to show.")
         st.stop()
     
-    # 3B) Filter df_merged
+    # B) Filter df_merged
     df_vis = df_merged[(df_merged["date"] >= start_ts) & (df_merged["date"] <= end_ts)]
     
-    # 3C) Multiselect for wrestlers
+    # C) Multiselect for wrestlers
     all_names = sorted(df_vis["wrestler_names"].dropna().unique())
     default_list = ["John Cena", "Hulk Hogan", "Rhea Ripley", "The Undertaker"]
     defaults_in_data = sorted(set(all_names).intersection(default_list))
     
     chosen = st.multiselect("Choose wrestlers:", options=all_names, default=defaults_in_data)
     
-    # 3D) Plot
+    # D) Plot
     if chosen:
         filtered = df_vis[df_vis["wrestler_names"].isin(chosen)]
         if filtered.empty:
@@ -270,11 +272,14 @@ Professional wrestling, as portrayed by World Wrestling Entertainment (WWE),
 occupies a unique space in sports and entertainment. ...
     """)
 
+##############################################################################
+# TAB 2: Match Simulator
+##############################################################################
 with tab2:
     st.header("Match Simulator")
     st.write("Pick wrestlers for Team 1 and Team 2 (one or more per team), select their match dates, then simulate.")
     
-    # 4A) Team selections
+    # Team selections
     all_names_sim = sorted(wrestler_names["wrestler_names"].dropna().unique())
     
     colA, colB = st.columns(2)
@@ -283,19 +288,18 @@ with tab2:
     with colB:
         chosen_team2 = st.multiselect("Team 2 Wrestlers:", options=all_names_sim, default=[])
     
-    # 4B) Each team picks a single date (for simplicity)
+    # Single date per team
     colC, colD = st.columns(2)
     with colC:
         team1_date = st.date_input("Team 1 Date:", datetime.date(2025, 1, 1))
     with colD:
         team2_date = st.date_input("Team 2 Date:", datetime.date(2025, 1, 1))
     
-    # 4C) Button => run simulation
     if st.button("Simulate Match"):
         if not chosen_team1 or not chosen_team2:
             st.warning("Please select at least one wrestler in each team.")
         else:
-            # Build team lists: (wrestler_name, match_date) in Python terms
+            # Build lists
             team1_list = [(name, pd.to_datetime(team1_date)) for name in chosen_team1]
             team2_list = [(name, pd.to_datetime(team2_date)) for name in chosen_team2]
             
@@ -310,3 +314,72 @@ with tab2:
             
             except Exception as e:
                 st.error(f"Error in simulation: {e}")
+
+##############################################################################
+# TAB 3: Active BK Rankings
+##############################################################################
+with tab3:
+    st.header("Active BK Rankings")
+    st.write("Pick a date, and see which wrestlers have competed in the prior 12 months, plus their BK skill at that date.")
+
+    # 1) User picks a date
+    default_ranking_date = datetime.date(2025, 1, 1)
+    ranking_date = st.date_input("Ranking Date:", default_ranking_date)
+    ranking_ts = pd.to_datetime(ranking_date)
+
+    # 2) Define "active" = at least one match within [ranking_ts - 365 days, ranking_ts]
+    one_year_ago = ranking_ts - pd.DateOffset(days=365)
+    
+    # We look at df_lc to see which wrestlers have any row in that time window
+    # i.e. df_lc["date"] between one_year_ago and ranking_ts
+    df_active_window = df_lc[(df_lc["date"] >= one_year_ago) & (df_lc["date"] <= ranking_ts)]
+    
+    active_wrestler_ids = df_active_window["wrestler_id"].unique()
+    
+    st.write(f"Found {len(active_wrestler_ids)} wrestlers active in the year prior to {ranking_date}.")
+    
+    # 3) For each active wrestler, find the row in df_lc that is "closest" to ranking_ts (or clamp)
+    #    We'll do a small function inline:
+    def get_mu_sigma_at_date(wid, date_ts):
+        sub = df_lc[df_lc["wrestler_id"] == wid].sort_values("date").reset_index(drop=True)
+        if sub.empty:
+            return None
+        
+        earliest = sub["date"].iloc[0]
+        latest   = sub["date"].iloc[-1]
+        if date_ts <= earliest:
+            row = sub.iloc[0]
+        elif date_ts >= latest:
+            row = sub.iloc[-1]
+        else:
+            diffs = (sub["date"] - date_ts).abs()
+            idxm = diffs.idxmin()
+            row = sub.loc[idxm]
+        return row
+
+    ranking_rows = []
+    for wid in active_wrestler_ids:
+        row = get_mu_sigma_at_date(wid, ranking_ts)
+        if row is not None:
+            ranking_rows.append(row)
+
+    # 4) Build a DataFrame from those rows
+    if len(ranking_rows) == 0:
+        st.warning("No active wrestlers found. Try a different date or check your data.")
+    else:
+        df_ranking = pd.DataFrame(ranking_rows)
+        # Merge to get the wrestler name
+        df_ranking = df_ranking.merge(wrestler_names, on="wrestler_id", how="left")
+        
+        # Sort descending by mu
+        df_ranking = df_ranking.sort_values("mu", ascending=False)
+        
+        # Keep top 100
+        df_top100 = df_ranking.head(100)
+
+        # We can display columns like: "wrestler_names", "mu", "sigma", "date"
+        # (the date is the row date we ended up using)
+        df_top100_display = df_top100[["wrestler_names", "mu", "sigma", "date"]].reset_index(drop=True)
+        
+        st.write("### Top 100 Active Wrestlers (by BK skill)")
+        st.dataframe(df_top100_display)
