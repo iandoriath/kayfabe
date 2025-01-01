@@ -402,9 +402,7 @@ with tab3:
 
 # --------------------------------------
 # TAB 4: "The Math"
-# --------------------------------------
-tab4 = st.tab("The Math")
-
+# -------------------------------------
 with tab4:
     st.header("Bayesian Kayfabe: A Data-Driven Look at WWE’s Scripted 'Skill'")
     
