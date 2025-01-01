@@ -449,13 +449,11 @@ with tab4:
 
     In short, **Bayesian Kayfabe** uses advanced statistical methods to shine a numerical light on WWE’s scripted outcomes. 
     It’s how we put the “stats” in “sports entertainment,” revealing the hidden hand that decides who gets pushed—and who doesn’t—over time.
-    """)
-
-    footer = """
+    
     <hr>
     <div style="text-align: center; font-size: 12px; color: grey;">
     © 2025 Ian DeLorey. All rights reserved.<br>
     Data sourced from <strong>Cagematch.net</strong>.<br>
     <strong>WWE</strong> is a registered trademark of World Wrestling Entertainment, Inc.<br>
-    </div>
-    """
+    </div>             
+    """)
