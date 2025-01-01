@@ -262,15 +262,6 @@ with tab1:
             st.plotly_chart(fig, use_container_width=True)
     else:
         st.write("Pick at least one wrestler from the list above.")
-    
-    st.markdown("---")
-    st.markdown("## Further Reading / Commentary")
-    st.markdown("""
-A Bayesian Kayfabe Wrestler Skill Metric for a Statistical Understanding of WWE Booking Decisions
-
-Professional wrestling, as portrayed by World Wrestling Entertainment (WWE), 
-occupies a unique space in sports and entertainment. ...
-    """)
 
 ##############################################################################
 # TAB 2: Match Simulator
