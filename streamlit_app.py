@@ -417,13 +417,13 @@ with tab4:
 
     1. **Multiple wrestlers/teams**: TTT handles tag matches, triple threats, or battle royals by grouping participants into “teams,” 
        then updating each team’s skill based on the match outcome.
-    2. **Temporal dimension**: We treat weekly or monthly blocks as discrete steps, allowing a wrestler’s skill to shift between 
+    2. **Temporal dimension**: We treat days as discrete steps, allowing a wrestler’s skill to shift between 
        appearances. If WWE starts pushing someone (winning frequently), TTT nudges their skill upward. Lulls or storyline losses 
        pull it down.
     3. **Bayesian inference**: After each match, we get a **posterior** skill estimate, reflecting both prior performances and the 
        new outcome’s evidence.
 
-    Ultimately, TTT yields a series of BK values (the mean skill) for each wrestler on each date. A high **BK** score signals 
+    Ultimately, TTT yields a series of BK values (the estimated mean skill) for each wrestler on each date. A high **BK** score signals 
     consistently “booked strong” in recent weeks, while a low score indicates storyline losses or midcard status.
 
     ---
@@ -433,7 +433,7 @@ with tab4:
     - **Quantifies Storyline Strength**: This isn’t real athletic power—it’s a lens into WWE’s creative priorities and pushes at any point in time.
 
     ---
-    ### The Up Shot
+    ### Conclusion
     By tracking wrestlers’ BK scores, we get a dynamic reading of how WWE itself is “telling the story.” 
     Even though it’s fiction, the data and modeling are very real—and from a statistician’s perspective, 
     TTT is a powerful tool for extracting information from seemingly chaotic booking patterns.
