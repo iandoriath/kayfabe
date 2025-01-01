@@ -422,7 +422,7 @@ with tab4:
     ---
     ### TrueSkill Through Time (TTT)
     The backbone of our approach is **TrueSkill Through Time (TTT)**—a Bayesian model that updates each competitor’s skill 
-    distribution as they compete. Instead of a static rating, **TTT** allows a wrestler’s skill \\(\\theta\\) to **drift** over time:
+    distribution as they compete. Instead of a static rating, **TTT** allows a wrestler’s Bayesian Kayfabe (BK) skill to **drift** over time:
 
     1. **Multiple wrestlers/teams**: TTT handles tag matches, triple threats, or battle royals by grouping participants into “teams,” 
        then updating each team’s skill based on the match outcome.
@@ -432,7 +432,7 @@ with tab4:
     3. **Bayesian inference**: After each match, we get a **posterior** skill estimate, reflecting both prior performances and the 
        new outcome’s evidence.
 
-    Ultimately, TTT yields a series of \\(\\mu\\) values (the mean skill) for each wrestler on each date. A high **BK** score signals 
+    Ultimately, TTT yields a series of BK values (the mean skill) for each wrestler on each date. A high **BK** score signals 
     consistently “booked strong” in recent weeks, while a low score indicates storyline losses or midcard status.
 
     ---
