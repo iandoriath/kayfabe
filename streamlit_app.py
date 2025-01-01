@@ -197,7 +197,7 @@ def simulate_match_python(team1_list, team2_list, df_lc, wrestler_names):
 ########################################
 # 3) Layout in Tabs
 ########################################
-tab1, tab2, tab3 = st.tabs(["Historic Wrestler Skill", "Match Simulator", "Active BK Rankings"])
+tab1, tab2, tab3, tab4 = st.tabs(["Historic Wrestler Skill", "Match Simulator", "Active BK Rankings", "The Math"])
 
 ##############################################################################
 # TAB 1: Historic Wrestler Skill
@@ -399,3 +399,56 @@ with tab3:
 
         st.write("### Top 100 Active Wrestlers (≥10 Appearances, by BK skill)")
         st.dataframe(df_top100_display)
+
+# --------------------------------------
+# TAB 4: "The Math"
+# --------------------------------------
+tab4 = st.tab("The Math")
+
+with tab4:
+    st.header("Bayesian Kayfabe: A Data-Driven Look at WWE’s Scripted 'Skill'")
+    
+    st.write("""
+    **by Ian DeLorey, MS**
+
+    Professional wrestling occupies a unique gray area: wrestlers are highly athletic, yet each match’s outcome is predetermined. 
+    How, then, do we measure someone’s “skill” if a victory is assigned by backstage decisions rather than sporting merit? 
+    Enter **Bayesian Kayfabe (BK)**—a statistical framework that treats WWE booking as a signal of a wrestler’s storyline strength.
+
+    ---
+    ### Where the Data Comes From
+    To create these skill estimates, we assembled historical WWE match results (thanks to the **Cagematch.net** database). 
+    Each event has a date, participants, and outcome. Even though outcomes are scripted, they reflect the creative team’s view 
+    of who “should” look strong at that moment.
+
+    ---
+    ### TrueSkill Through Time (TTT)
+    The backbone of our approach is **TrueSkill Through Time (TTT)**—a Bayesian model that updates each competitor’s skill 
+    distribution as they compete. Instead of a static rating, **TTT** allows a wrestler’s skill \\(\\theta\\) to **drift** over time:
+
+    1. **Multiple wrestlers/teams**: TTT handles tag matches, triple threats, or battle royals by grouping participants into “teams,” 
+       then updating each team’s skill based on the match outcome.
+    2. **Temporal dimension**: We treat weekly or monthly blocks as discrete steps, allowing a wrestler’s skill to shift between 
+       appearances. If WWE starts pushing someone (winning frequently), TTT nudges their skill upward. Lulls or storyline losses 
+       pull it down.
+    3. **Bayesian inference**: After each match, we get a **posterior** skill estimate, reflecting both prior performances and the 
+       new outcome’s evidence.
+
+    Ultimately, TTT yields a series of \\(\\mu\\) values (the mean skill) for each wrestler on each date. A high **BK** score signals 
+    consistently “booked strong” in recent weeks, while a low score indicates storyline losses or midcard status.
+
+    ---
+    ### Why It Matters
+    - **Captures Momentum**: A wrestler on a hot streak (scripted or otherwise) sees a jump in BK.
+    - **Handles Complexities**: Multi-competitor matches, alliances, and random breaks in activity fit naturally into this Bayesian framework.
+    - **Quantifies Storyline Strength**: This isn’t real athletic power—it’s a lens into WWE’s creative priorities and pushes at any point in time.
+
+    ---
+    ### The Up Shot
+    By tracking wrestlers’ BK scores, we get a dynamic reading of how WWE itself is “telling the story.” 
+    Even though it’s fiction, the data and modeling are very real—and from a statistician’s perspective, 
+    TTT is a powerful tool for extracting information from seemingly chaotic booking patterns.
+
+    In short, **Bayesian Kayfabe** uses advanced statistical methods to shine a numerical light on WWE’s scripted outcomes. 
+    It’s how we put the “stats” in “sports entertainment,” revealing the hidden hand that decides who gets pushed—and who doesn’t—over time.
+    """)
