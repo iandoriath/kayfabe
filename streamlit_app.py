@@ -457,7 +457,6 @@ footer = """
     © 2025 Ian DeLorey. All rights reserved.<br>
     Data sourced from <strong>Cagematch.net</strong>.<br>
     <strong>WWE</strong> is a registered trademark of World Wrestling Entertainment, Inc.<br>
-    <a href="#">Terms of Service</a> | <a href="#">Privacy Policy</a>
 </div>
 """
 st.markdown(footer, unsafe_allow_html=True)
