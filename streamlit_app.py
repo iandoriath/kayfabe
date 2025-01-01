@@ -198,10 +198,10 @@ def simulate_match_python(team1_list, team2_list, df_lc, wrestler_names):
 ########################################
 # 3) Layout in Tabs
 ########################################
-tab1, tab2 = st.tabs(["BK Skill over Time", "Match Simulator"])
+tab1, tab2 = st.tabs(["Historic Wrestler Skill", "Match Simulator"])
 
 with tab1:
-    st.title("Bayesian Kayfabe: A Pro Wrestling Skill Metric")
+    st.title("Bayesian Kayfabe: Wrestler Skill Over Time")
     
     # 3A) Set up date inputs
     default_start = datetime.date(1985, 1, 1)
@@ -251,10 +251,10 @@ with tab1:
             fig = px.line(
                 filtered,
                 x="date",
-                y="BK",  # your skill column
+                y="mu",  # your skill column
                 color="wrestler_names",
                 title="Kayfabe Wrestler Skill Over Time",
-                labels={"date": "Date", "BK": "Bayesian Kayfabe Estimated Skill"}
+                labels={"date": "Date", "mu": "Estimated Skill (BK)"}
             )
             fig.add_hline(y=0, line_dash="dash", line_color="black")
             st.plotly_chart(fig, use_container_width=True)
