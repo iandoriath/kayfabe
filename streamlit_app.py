@@ -450,3 +450,9 @@ with tab4:
     In short, **Bayesian Kayfabe** uses advanced statistical methods to shine a numerical light on WWE’s scripted outcomes. 
     It’s how we put the “stats” in “sports entertainment,” revealing the hidden hand that decides who gets pushed—and who doesn’t—over time.
     """)
+
+# At the very end of your streamlit_app.py
+st.markdown("""
+---
+© 2025 Ian DeLorey. All rights reserved.
+""")
