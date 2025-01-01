@@ -448,12 +448,16 @@ with tab4:
     TTT is a powerful tool for extracting information from seemingly chaotic booking patterns.
 
     In short, **Bayesian Kayfabe** uses advanced statistical methods to shine a numerical light on WWE’s scripted outcomes. 
-    It’s how we put the “stats” in “sports entertainment,” revealing the hidden hand that decides who gets pushed—and who doesn’t—over time.
-    
-    <hr>
-    <div style="text-align: center; font-size: 12px; color: grey;">
+    It’s how we put the “stats” in “sports entertainment,” revealing the hidden hand that decides who gets pushed—and who doesn’t—over time.         
+    """)
+
+footer = """
+<hr>
+<div style="text-align: center; font-size: 12px; color: grey;">
     © 2025 Ian DeLorey. All rights reserved.<br>
     Data sourced from <strong>Cagematch.net</strong>.<br>
     <strong>WWE</strong> is a registered trademark of World Wrestling Entertainment, Inc.<br>
-    </div>             
-    """)
+    <a href="#">Terms of Service</a> | <a href="#">Privacy Policy</a>
+</div>
+"""
+st.markdown(footer, unsafe_allow_html=True)
