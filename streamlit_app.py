@@ -85,8 +85,8 @@ if chosen:
             x="date", 
             y="mu",  # your skill column
             color="wrestler_names",
-            title="Weekly Wrestler Skill Over Time",
-            labels={"date": "Date", "mu": "Estimated Skill (mu)"}
+            title="Kayfabe Wrestler Skill Over Time",
+            labels={"date": "Date", "BK Skill Metric": "Estimated Skill (BK)"}
         )
         fig.add_hline(y=0, line_dash="dash", line_color="black")
         st.plotly_chart(fig, use_container_width=True)
@@ -99,9 +99,8 @@ st.markdown("## Further Reading / Commentary")
 st.markdown("""
 A Bayesian Kayfabe Wrestler Skill Metric for a Statistical Understanding of WWE Booking Decisions
 
-Ian DeLorey MS
-
 Professional wrestling, as portrayed by World Wrestling Entertainment (WWE), occupies a unique space in sports and entertainment. While the athleticism of the performers is undeniable, the outcomes of matches are ultimately determined by creative decisions rather than pure athletic competition. In industry parlance, the scripted nature of professional wrestling is referred to as “kayfabe,” a term which historically signified the code of secrecy within the wrestling business. Wrestlers are presented to the audience as though they are truly competing, with wins and losses contributing to perceptions of who is “strong” or “skilled.” Yet, because these outcomes are orchestrated, the notion of “skill” in WWE diverges considerably from a purely competitive metric.
+
 Despite its scripted nature, fans, journalists, and analysts have long been interested in quantifying wrestlers’ performance levels or “pushes” as a means of evaluating how WWE’s creative team positions performers. This paper proposes a statistical model—herein called the Bayesian Kayfabe (BK) skill metric—that estimates a wrestler’s “storyline strength” over time, based on match outcomes that appear in the public record. Though these outcomes are fictional in a sporting sense, the company’s booking patterns reflect actual creative and business decisions that shape audience perception, merchandise sales, and other revenue streams. By capturing these decisions quantitatively, we can better analyze how, when, and why certain wrestlers gain or lose prominence in WWE storylines.
 
 """)
