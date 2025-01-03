@@ -268,43 +268,47 @@ with tab1:
 ##############################################################################
 with tab2:
     st.header("Betting Odds & Match Simulator")
-    st.write("Pick wrestlers for Team 1 and Team 2 (one or more per team), select their match dates, then simulate.")
+    st.write("Pick wrestlers for Team 1 and Team 2, set a unique date for each wrestler, and simulate.")
+
+    # Team 1
+    st.write("### Team 1 Selection")
+    team1_wrestlers = []
+    num_team1 = st.number_input("Number of wrestlers in Team 1:", min_value=1, max_value=10, value=1)
     
-    # Team selections
-    all_names_sim = sorted(wrestler_names["wrestler_names"].dropna().unique())
-    
-    colA, colB = st.columns(2)
-    with colA:
-        chosen_team1 = st.multiselect("Team 1 Wrestlers:", options=all_names_sim, default=[])
-    with colB:
-        chosen_team2 = st.multiselect("Team 2 Wrestlers:", options=all_names_sim, default=[])
-    
-    # Single date per team
-    colC, colD = st.columns(2)
-    with colC:
-        team1_date = st.date_input("Team 1 Date:", datetime.date(2025, 1, 1))
-    with colD:
-        team2_date = st.date_input("Team 2 Date:", datetime.date(2025, 1, 1))
-    
+    for i in range(num_team1):
+        with st.expander(f"Team 1 Wrestler {i + 1}"):
+            wrestler = st.selectbox(f"Wrestler {i + 1}:", options=all_names_sim, key=f"team1_wrestler_{i}")
+            match_date = st.date_input(f"Match Date for {wrestler}:", datetime.date(2025, 1, 1), key=f"team1_date_{i}")
+            team1_wrestlers.append((wrestler, pd.to_datetime(match_date)))
+
+    # Team 2
+    st.write("### Team 2 Selection")
+    team2_wrestlers = []
+    num_team2 = st.number_input("Number of wrestlers in Team 2:", min_value=1, max_value=10, value=1)
+
+    for i in range(num_team2):
+        with st.expander(f"Team 2 Wrestler {i + 1}"):
+            wrestler = st.selectbox(f"Wrestler {i + 1}:", options=all_names_sim, key=f"team2_wrestler_{i}")
+            match_date = st.date_input(f"Match Date for {wrestler}:", datetime.date(2025, 1, 1), key=f"team2_date_{i}")
+            team2_wrestlers.append((wrestler, pd.to_datetime(match_date)))
+
+    # Simulate Match
     if st.button("Simulate Match"):
-        if not chosen_team1 or not chosen_team2:
+        if not team1_wrestlers or not team2_wrestlers:
             st.warning("Please select at least one wrestler in each team.")
         else:
-            # Build lists
-            team1_list = [(name, pd.to_datetime(team1_date)) for name in chosen_team1]
-            team2_list = [(name, pd.to_datetime(team2_date)) for name in chosen_team2]
-            
             try:
-                sim_result = simulate_match_python(team1_list, team2_list, df_lc, wrestler_names)
+                sim_result = simulate_match_python(team1_wrestlers, team2_wrestlers, df_lc, wrestler_names)
                 match_df = sim_result["match_summary"]
                 st.write("**Simulation Results**")
                 st.dataframe(match_df)
-                
+
                 st.write("**mu_diff**:", sim_result["mu_diff"])
                 st.write("**sigma_diff**:", sim_result["sigma_diff"])
-            
+
             except Exception as e:
                 st.error(f"Error in simulation: {e}")
+
 
 ##############################################################################
 # TAB 3: Active BK Rankings
