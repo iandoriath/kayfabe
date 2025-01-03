@@ -197,7 +197,7 @@ def simulate_match_python(team1_list, team2_list, df_lc, wrestler_names):
 ########################################
 # 3) Layout in Tabs
 ########################################
-tab1, tab2, tab3, tab4 = st.tabs(["Historic Wrestler Skill", "Match Simulator", "Active BK Rankings", "The Math"])
+tab1, tab2, tab3, tab4 = st.tabs(["Historic Wrestler Skill", "Betting Odds", "Active BK Rankings", "The Math"])
 
 ##############################################################################
 # TAB 1: Historic Wrestler Skill
@@ -267,7 +267,7 @@ with tab1:
 # TAB 2: Match Simulator
 ##############################################################################
 with tab2:
-    st.header("Match Simulator")
+    st.header("Betting Odds & Match Simulator")
     st.write("Pick wrestlers for Team 1 and Team 2 (one or more per team), select their match dates, then simulate.")
     
     # Team selections
