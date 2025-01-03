@@ -263,9 +263,14 @@ with tab1:
     else:
         st.write("Pick at least one wrestler from the list above.")
 
+
+
 ##############################################################################
-# TAB 2: Match Simulator
+# TAB 2: Betting Odds & Match Simulator
 ##############################################################################
+# Define all_names_sim for use in TAB 2
+all_names_sim = sorted(wrestler_names["wrestler_names"].dropna().unique())
+
 with tab2:
     st.header("Betting Odds & Match Simulator")
     st.write("Pick wrestlers for Team 1 and Team 2, set a unique date for each wrestler, and simulate.")
