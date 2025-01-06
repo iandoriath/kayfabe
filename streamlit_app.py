@@ -454,7 +454,7 @@ with tab4:
 footer = """
 <hr>
 <div style="text-align: center; font-size: 12px; color: grey;">
-    © 2025 Ian DeLorey. All rights reserved.<br>
+    © 2025. All rights reserved.<br>
     Data sourced from <strong>Cagematch.net</strong>.<br>
     <strong>WWE</strong> is a registered trademark of World Wrestling Entertainment, Inc.<br>
 </div>
