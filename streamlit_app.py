@@ -407,12 +407,19 @@ with tab4:
     st.header("Bayesian Kayfabe: A Data-Driven Look at WWE’s Scripted 'Skill'")
     
     st.write("""
-    **by Ian DeLorey, MS**
 
-    Professional wrestling occupies a unique gray area: wrestlers are highly athletic, yet each match’s outcome is predetermined. 
-    How, then, do we measure someone’s “skill” if a victory is assigned by backstage decisions rather than sporting merit? 
-    Enter **Bayesian Kayfabe (BK)**—a statistical framework that treats WWE booking as a signal of a wrestler’s storyline strength.
+    *This business was a shoot. It was the man who made the most money. So when I worked for Vince and Bob Backlund was the champion, 
+    I wrestled Backlund. Backlund always got paid more than me. Oh really? So this isn’t a work? So it does matter if you win or lose? 
+    It does matter if you’re the champion or not? Everybody goes, ‘Oh, it’s a work.’ Well, it’s really not a work. It’s about the money and the mileage.*
 
+    -Hulk Hogan
+
+    ---
+    Baysian Kayfabe (BK) is a player skill metric for professional wrestling. Though the matches have predetermined outcomes, winning and losing 
+    does mean something in a professional wrestler's career. Many sports have developed individual player skill metrics, but the meaning of such a 
+    statistic for pro-wrestling is different than other sports. It quantifies a wrestler's storyline strength, as determined by a wrestling
+    promotion's booking agents.
+    
     ---
     ### Where the Data Comes From
     To create these skill estimates, we assembled historical WWE match results (thanks to the **Cagematch.net** database). 
